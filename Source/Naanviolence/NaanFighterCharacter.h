@@ -19,6 +19,12 @@ class ANaanFighterCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
+	// different attacks
+	void StartAttack1();
+	void StartAttack2();
+	void StartAttack3();
+	void StartAttack4();
+
 
 protected:
 
@@ -37,6 +43,17 @@ protected:
 
 	// Called when the game starts or when spawned
 	// virtual void BeginPlay() override;
+
+	// damage the player
+	void TakeDamage(float damageAmount);
+	
+	// has the player used basic attack?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
+	bool wasFirstAttackUsed;
+
+	// the amount of health the character currently has
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float playerHealth;
 
 public:
 	// Sets default values for this character's properties

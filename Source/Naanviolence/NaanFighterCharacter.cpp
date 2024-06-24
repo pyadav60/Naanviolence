@@ -43,6 +43,9 @@ ANaanFighterCharacter::ANaanFighterCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
 
+	wasFirstAttackUsed = false;
+	playerHealth = 1.00f;
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
@@ -60,6 +63,15 @@ void ANaanFighterCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ANaanFighterCharacter::MoveRight);
+
+	PlayerInputComponent->BindAction("Attack1", IE_Pressed, this, &ANaanFighterCharacter::StartAttack1);
+	//PlayerInputComponent->BindAction("Attack1", IE_Released, this, &ANaanFighterCharacter::StopAttack1);
+	PlayerInputComponent->BindAction("Attack2", IE_Pressed, this, &ANaanFighterCharacter::StartAttack2);
+	//PlayerInputComponent->BindAction("Attack2", IE_Released, this, &ANaanFighterCharacter::StopAttack2);
+	PlayerInputComponent->BindAction("Attack3", IE_Pressed, this, &ANaanFighterCharacter::StartAttack3);
+	//PlayerInputComponent->BindAction("Attack3", IE_Released, this, &ANaanFighterCharacter::StopAttack3);
+	PlayerInputComponent->BindAction("Attack4", IE_Pressed, this, &ANaanFighterCharacter::StartAttack4);
+	//PlayerInputComponent->BindAction("Attack4", IE_Released, this, &ANaanFighterCharacter::StopAttack4);
 
 	PlayerInputComponent->BindTouch(IE_Pressed, this, &ANaanFighterCharacter::TouchStarted);
 	PlayerInputComponent->BindTouch(IE_Released, this, &ANaanFighterCharacter::TouchStopped);
@@ -83,6 +95,38 @@ void ANaanFighterCharacter::TouchStopped(const ETouchIndex::Type FingerIndex, co
 	StopJumping();
 }
 
+void ANaanFighterCharacter::StartAttack1()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Using attack 1"));
+	wasFirstAttackUsed = true;
+}
+
+void ANaanFighterCharacter::StartAttack2()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Using attack 2"));
+}
+
+void ANaanFighterCharacter::StartAttack3()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Using attack 3"));
+}
+
+void ANaanFighterCharacter::StartAttack4()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Using attack 4"));
+	TakeDamage(0.05f);
+}
+
+void ANaanFighterCharacter::TakeDamage(float damageAmount)
+{
+	UE_LOG(LogTemp, Warning, TEXT("taking %f damage"), damageAmount);
+	playerHealth -= damageAmount;
+
+	if (playerHealth < 0.00f)
+	{
+		playerHealth = 0.00f;
+	}
+}
 
 //// Called when the game starts or when spawned
 //void ANaanFighterCharacter::BeginPlay()

@@ -1,5 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
+// JASON NOTE: this cpp file is the default player and has been put aside for the new class, NaanFighterCharacter
+
 #include "NaanviolenceCharacter.h"
 #include "Engine/LocalPlayer.h"
 #include "Camera/CameraComponent.h"
