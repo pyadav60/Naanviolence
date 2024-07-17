@@ -120,6 +120,7 @@ void ANaanFighterCharacter::StartAttack4()
 void ANaanFighterCharacter::TakeDamage(float damageAmount)
 {
 	UE_LOG(LogTemp, Warning, TEXT("taking %f damage"), damageAmount);
+	UE_LOG(LogTemp, Warning, TEXT("remaining %f"), playerHealth);
 	playerHealth -= damageAmount;
 
 	if (playerHealth < 0.00f)

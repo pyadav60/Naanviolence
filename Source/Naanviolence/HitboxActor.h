@@ -35,6 +35,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void VisualizeHitbox();
 
+	// the damage this hitbox will do
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hitbox")
+	float hitboxDamage;
+
 	// the hitbox enum instance
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hitbox")
 	EHitboxEnum hitboxType;

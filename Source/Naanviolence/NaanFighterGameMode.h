@@ -4,7 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "NaanFighterCharacter.h"
 #include "NaanFighterGameMode.generated.h"
+
+UENUM(BlueprintType)
+enum class ECharacterClass : uint8
+{
+	VE_Default UMETA(DisplayName = "Mannequin"),
+	VE_Raider  UMETA(DisplayName = "Raider")
+};
 
 /**
  * 
@@ -17,4 +25,10 @@ class ANaanFighterGameMode : public AGameModeBase
 
 public:
 	ANaanFighterGameMode();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player References")
+	ANaanFighterCharacter* player1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player References")
+	ANaanFighterCharacter* player2;
 };

@@ -44,7 +44,11 @@ protected:
 	// Called when the game starts or when spawned
 	// virtual void BeginPlay() override;
 
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+	// ECharacterClass characterClass;
+
 	// damage the player
+	UFUNCTION(BlueprintCallable)
 	void TakeDamage(float damageAmount);
 	
 	// has the player used basic attack?
