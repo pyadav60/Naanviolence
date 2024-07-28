@@ -7,13 +7,6 @@
 #include "NaanFighterCharacter.h"
 #include "NaanFighterGameMode.generated.h"
 
-UENUM(BlueprintType)
-enum class ECharacterClass : uint8
-{
-	VE_Default UMETA(DisplayName = "Mannequin"),
-	VE_Raider  UMETA(DisplayName = "Raider")
-};
-
 /**
  * 
  */
