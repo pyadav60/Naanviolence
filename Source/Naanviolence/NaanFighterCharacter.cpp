@@ -43,6 +43,7 @@ ANaanFighterCharacter::ANaanFighterCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
 
+	hurtbox = nullptr;
 	wasFirstAttackUsed = false;
 	playerHealth = 1.00f;
 

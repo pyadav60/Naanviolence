@@ -47,6 +47,9 @@ protected:
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
 	// ECharacterClass characterClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hitbox")
+	AActor* hurtbox;
+
 	// damage the player
 	UFUNCTION(BlueprintCallable)
 	void TakeDamage(float damageAmount);

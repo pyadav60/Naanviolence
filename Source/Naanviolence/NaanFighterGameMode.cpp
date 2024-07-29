@@ -7,6 +7,8 @@
 
 ANaanFighterGameMode::ANaanFighterGameMode()
 {
+	player1 = nullptr;
+	player2 = nullptr;
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/SideScrollerCPP/Blueprints/NaanFighter"));
 	if (PlayerPawnBPClass.Class != nullptr)
 	{
