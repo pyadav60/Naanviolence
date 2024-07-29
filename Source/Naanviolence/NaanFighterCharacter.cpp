@@ -34,7 +34,7 @@ ANaanFighterCharacter::ANaanFighterCharacter()
 	SideViewCameraComponent->bUsePawnControlRotation = false; // We don't want the controller rotating the camera
 
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Face in the direction we are moving..
+	GetCharacterMovement()->bOrientRotationToMovement = false; // DO NOT Face in the direction we are moving..
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 720.0f, 0.0f); // ...at this rotation rate
 	GetCharacterMovement()->GravityScale = 2.f;
 	GetCharacterMovement()->AirControl = 0.80f;
@@ -42,10 +42,14 @@ ANaanFighterCharacter::ANaanFighterCharacter()
 	GetCharacterMovement()->GroundFriction = 3.f;
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
 	GetCharacterMovement()->MaxFlySpeed = 600.f;
-
+	
 	hurtbox = nullptr;
+	otherPlayer = nullptr;
 	wasFirstAttackUsed = false;
+	isFlipped = false;
 	playerHealth = 1.00f;
+	transform = FTransform(FVector(0.0f, 0.0f, 0.0f));
+	scale = FVector(1.0f, 1.0f, 1.0f);
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -137,12 +141,66 @@ void ANaanFighterCharacter::TakeDamage(float damageAmount)
 //	
 //}
 //
-//// Called every frame
-//void ANaanFighterCharacter::Tick(float DeltaTime)
-//{
-//	Super::Tick(DeltaTime);
-//
-//}
+
+// Called every frame
+void ANaanFighterCharacter::Tick(float DeltaTime)
+{
+	// call super tick function
+	Super::Tick(DeltaTime);
+
+	// if otherPlayer is not a nullptr (means it has been assigned in the blueprints and exists)
+	if (otherPlayer)
+	{
+		// try to automatically assign the CharacterMovement to our variable
+		if (auto characterMovement = GetCharacterMovement()) 
+		{
+			// try to automatically assign the otherplayer CharacterMovement to our enemy variable
+			if (auto enemyMovement = otherPlayer->GetCharacterMovement()) 
+			{
+				// if the enemy is to the right... (inverse Y coord is horizontal due to our camera setup, Z is vertical, X is near/far)
+				if (enemyMovement->GetActorLocation().Y >= characterMovement->GetActorLocation().Y)
+				{
+					// and if we are facing left...
+					if (isFlipped)
+					{
+						// we want to change the scale of the mesh, not the fighter BP (so we don't have to deal with other math)
+						// temporarily hard coded, we get the child index 1 of CapsuleComponent of the fighter, which is the mesh
+						// better practice instead to find component by name rather than hard code
+						// better practice to make sure CapsuleComponent exists first like with the two autos above, but with those this is practically guaranteed
+						if (auto mesh = GetCapsuleComponent()->GetChildComponent(1))
+						{
+							transform = mesh->GetRelativeTransform(); // gets transform box with location, rotation, scale and sets our temporary transform variable
+							scale = transform.GetScale3D(); // gets the scale part
+							scale.Y = -1;// mirror the mesh, flip to the right (characters face right by default, but note the inverted Y axis)
+							transform.SetScale3D(scale); // update our transform variable with the new scale
+							mesh->SetRelativeTransform(transform); // update the mesh's transform with the temporary transform variable
+						}
+						isFlipped = false;
+					}
+				}
+				// if the enemy is to the left...
+				else
+				{
+					// ... and if we are facing right
+					if (!isFlipped)
+					{
+						// same comments as block above
+						if (auto mesh = GetCapsuleComponent()->GetChildComponent(1))
+						{
+							transform = mesh->GetRelativeTransform(); // gets transform box with location, rotation, scale and sets our temporary transform variable
+							scale = transform.GetScale3D(); // gets the scale part
+							scale.Y = 1; // mirror the mesh, flip to the left (characters face right by default, but note the inverted Y axis)
+							transform.SetScale3D(scale); // update our transform variable with the new scale
+							mesh->SetRelativeTransform(transform); // update the mesh's transform with the temporary transform variable
+						}
+						isFlipped = true;
+					}
+				}
+			}
+		}
+	}
+}
+
 //
 //// Called to bind functionality to input
 //void ANaanFighterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

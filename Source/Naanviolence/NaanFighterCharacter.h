@@ -47,6 +47,9 @@ protected:
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
 	// ECharacterClass characterClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player References")
+	ANaanFighterCharacter* otherPlayer;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hitbox")
 	AActor* hurtbox;
 
@@ -62,6 +65,18 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	float playerHealth;
 
+	// is the character's model flipped?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Model")
+	bool isFlipped;
+
+	// character's transform
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Model")
+	FTransform transform;
+
+	// character's scale
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Model")
+	FVector scale;
+
 public:
 	// Sets default values for this character's properties
 	ANaanFighterCharacter();
@@ -71,11 +86,11 @@ public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
-//public:	
-//	// Called every frame
-//	virtual void Tick(float DeltaTime) override;
-//
-//	// Called to bind functionality to input
-//	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	// virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 };
