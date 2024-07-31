@@ -6,6 +6,14 @@
 #include "GameFramework/Character.h"
 #include "NaanFighterCharacter.generated.h"
 
+UENUM(BlueprintType)
+enum class EDirectionalInput : uint8
+{
+	VE_Default UMETA(DisplayName = "NOT_MOVING"),
+	VE_MovingRight UMETA(DisplayName = "MOVING_RIGHT"),
+	VE_MovingLeft UMETA(DisplayName = "MOVING_LEFT")
+};
+
 UCLASS(config=Game)
 class ANaanFighterCharacter : public ACharacter
 {
@@ -47,19 +55,37 @@ protected:
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
 	// ECharacterClass characterClass;
 
+	// pointer to the other player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player References")
 	ANaanFighterCharacter* otherPlayer;
 
+	// a character's hurtbox
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hitbox")
 	AActor* hurtbox;
+
+	// the direction the character is moving / the direction the player is holding down
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	EDirectionalInput directionalInput;
 
 	// damage the player
 	UFUNCTION(BlueprintCallable)
 	void TakeDamage(float damageAmount);
 	
-	// has the player used basic attack?
+	// has the player used light attack?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
 	bool wasFirstAttackUsed;
+
+	// has the player used medium attack?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
+	bool wasSecondAttackUsed;
+
+	// has the player used heavy attack?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
+	bool wasThirdAttackUsed;
+
+	// has the player used special attack?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
+	bool wasFourthAttackUsed;
 
 	// the amount of health the character currently has
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")

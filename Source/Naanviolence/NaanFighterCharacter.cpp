@@ -45,7 +45,11 @@ ANaanFighterCharacter::ANaanFighterCharacter()
 	
 	hurtbox = nullptr;
 	otherPlayer = nullptr;
+	directionalInput = EDirectionalInput::VE_Default;
 	wasFirstAttackUsed = false;
+	wasSecondAttackUsed = false;
+	wasThirdAttackUsed = false;
+	wasFourthAttackUsed = false;
 	isFlipped = false;
 	playerHealth = 1.00f;
 	transform = FTransform(FVector(0.0f, 0.0f, 0.0f));
@@ -83,8 +87,23 @@ void ANaanFighterCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 }
 
+// value is taken in by default, to be between -1 and 1 depending on the input, 1 is moving right, -1 is left
 void ANaanFighterCharacter::MoveRight(float Value)
 {
+	UE_LOG(LogTemp, Warning, TEXT("The directional input is: %f"), Value);
+
+	if (Value > 0.20f)
+	{
+		directionalInput = EDirectionalInput::VE_MovingRight;
+	}
+	else if (Value < -0.20f)
+	{
+		directionalInput = EDirectionalInput::VE_MovingLeft;
+	}
+	else
+	{
+		directionalInput = EDirectionalInput::VE_Default;
+	}
 	// add movement in that direction
 	AddMovementInput(FVector(0.f, -1.f, 0.f), Value);
 }
@@ -109,17 +128,19 @@ void ANaanFighterCharacter::StartAttack1()
 void ANaanFighterCharacter::StartAttack2()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Using attack 2"));
+	wasSecondAttackUsed = true;
 }
 
 void ANaanFighterCharacter::StartAttack3()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Using attack 3"));
+	wasThirdAttackUsed = true;
 }
 
 void ANaanFighterCharacter::StartAttack4()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Using attack 4"));
-	TakeDamage(0.05f);
+	wasFourthAttackUsed = true;
 }
 
 void ANaanFighterCharacter::TakeDamage(float damageAmount)
@@ -151,6 +172,8 @@ void ANaanFighterCharacter::Tick(float DeltaTime)
 	// if otherPlayer is not a nullptr (means it has been assigned in the blueprints and exists)
 	if (otherPlayer)
 	{
+		// NOTE: isFlipped is false when you are on the RIGHT (facing left), and true when you are on the LEFT (facing right)
+		// UE_LOG(LogTemp, Warning, TEXT("%s"), isFlipped ? TEXT("True") : TEXT("False"));
 		// try to automatically assign the CharacterMovement to our variable
 		if (auto characterMovement = GetCharacterMovement()) 
 		{
