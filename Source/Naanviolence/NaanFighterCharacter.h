@@ -87,6 +87,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
 	bool wasFourthAttackUsed;
 
+	// has the player landed a hit with their last attack?
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
+	bool hasLandedHit;
+
 	// the amount of health the character currently has
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	float playerHealth;

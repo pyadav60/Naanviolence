@@ -51,6 +51,7 @@ ANaanFighterCharacter::ANaanFighterCharacter()
 	wasThirdAttackUsed = false;
 	wasFourthAttackUsed = false;
 	isFlipped = false;
+	hasLandedHit = false;
 	playerHealth = 1.00f;
 	transform = FTransform(FVector(0.0f, 0.0f, 0.0f));
 	scale = FVector(1.0f, 1.0f, 1.0f);
@@ -148,6 +149,11 @@ void ANaanFighterCharacter::TakeDamage(float damageAmount)
 	UE_LOG(LogTemp, Warning, TEXT("taking %f damage"), damageAmount);
 	UE_LOG(LogTemp, Warning, TEXT("remaining %f"), playerHealth);
 	playerHealth -= damageAmount;
+	
+	if (otherPlayer)
+	{
+		otherPlayer->hasLandedHit = true;
+	}
 
 	if (playerHealth < 0.00f)
 	{
