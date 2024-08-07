@@ -20,12 +20,12 @@ class ANaanFighterCharacter : public ACharacter
 	GENERATED_BODY()
 
 	/** Side view camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class UCameraComponent* SideViewCameraComponent;
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	// class UCameraComponent* SideViewCameraComponent;
 
 	/** Camera boom positioning the camera beside the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	class USpringArmComponent* CameraBoom;
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	// class USpringArmComponent* CameraBoom;
 
 	// different attacks
 	void StartAttack1();
@@ -112,9 +112,9 @@ public:
 	ANaanFighterCharacter();
 
 	/** Returns SideViewCameraComponent subobject **/
-	FORCEINLINE class UCameraComponent* GetSideViewCameraComponent() const { return SideViewCameraComponent; }
+	// FORCEINLINE class UCameraComponent* GetSideViewCameraComponent() const { return SideViewCameraComponent; }
 	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	// FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
 public:	
 	// Called every frame
