@@ -105,7 +105,7 @@ void ANaanFighterCharacter::MoveRight(float Value)
 	{
 		directionalInput = EDirectionalInput::VE_Default;
 	}
-	// add movement in that direction
+	// add movement in that direction, negative world direction because of the way y axis in inverted..
 	AddMovementInput(FVector(0.f, -1.f, 0.f), Value);
 }
 
@@ -142,6 +142,43 @@ void ANaanFighterCharacter::StartAttack4()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Using attack 4"));
 	wasFourthAttackUsed = true;
+}
+
+
+// player 2 commands
+void ANaanFighterCharacter::P2KeyboardAttack1()
+{
+	StartAttack1();
+}
+
+void ANaanFighterCharacter::P2KeyboardAttack2()
+{
+	StartAttack2();
+}
+
+void ANaanFighterCharacter::P2KeyboardAttack3()
+{
+	StartAttack3();
+}
+
+void ANaanFighterCharacter::P2KeyboardAttack4()
+{
+	StartAttack4();
+}
+
+void ANaanFighterCharacter::P2KeyboardJump()
+{
+	Jump();
+}
+
+void ANaanFighterCharacter::P2KeyboardStopJumping()
+{
+	StopJumping();
+}
+
+void ANaanFighterCharacter::P2KeyboardMoveRight(float Value)
+{
+	MoveRight(Value);
 }
 
 void ANaanFighterCharacter::TakeDamage(float damageAmount)

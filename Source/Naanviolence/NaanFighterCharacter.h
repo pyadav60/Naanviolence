@@ -34,6 +34,30 @@ class ANaanFighterCharacter : public ACharacter
 	void StartAttack4();
 
 
+	// these are all P2's controls. unreal doesn't like it when two objects of the same bp are assigned to same controller (for local multi).
+	// so instead we mimic the player input component by making blueprint callable functions and execute logic in the code class and bp
+	UFUNCTION(BlueprintCallable)
+	void P2KeyboardAttack1();
+
+	UFUNCTION(BlueprintCallable)
+	void P2KeyboardAttack2();
+
+	UFUNCTION(BlueprintCallable)
+	void P2KeyboardAttack3();
+
+	UFUNCTION(BlueprintCallable)
+	void P2KeyboardAttack4();
+
+	UFUNCTION(BlueprintCallable)
+	void P2KeyboardJump();
+
+	UFUNCTION(BlueprintCallable)
+	void P2KeyboardStopJumping();
+
+	UFUNCTION(BlueprintCallable)
+	void P2KeyboardMoveRight(float Val);
+
+
 protected:
 
 	/** Called for side to side input */
