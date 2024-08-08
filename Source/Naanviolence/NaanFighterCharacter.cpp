@@ -2,6 +2,7 @@
 
 
 #include "NaanFighterCharacter.h"
+#include "NaanFighterGameMode.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -52,6 +53,8 @@ ANaanFighterCharacter::ANaanFighterCharacter()
 	wasFourthAttackUsed = false;
 	isFlipped = false;
 	hasLandedHit = false;
+	canMove = false;
+	isDeviceForMultiplePlayers = false;
 	playerHealth = 1.00f;
 	transform = FTransform(FVector(0.0f, 0.0f, 0.0f));
 	scale = FVector(1.0f, 1.0f, 1.0f);
@@ -69,22 +72,54 @@ ANaanFighterCharacter::ANaanFighterCharacter()
 
 void ANaanFighterCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	// set up gameplay key bindings
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ANaanFighterCharacter::MoveRight);
+	// our casted NaanFighterGameMode gamemode always has the reference to both players
+	// set gameMode to the casted gamemode, the GetWorld()->GetAuthGameMode() is builtin to unreal to get current gamemode
+	if (auto gameMode = Cast<ANaanFighterGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		if (gameMode->player1 == this)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player 1 has bound their controls."));
 
-	PlayerInputComponent->BindAction("Attack1", IE_Pressed, this, &ANaanFighterCharacter::StartAttack1);
-	//PlayerInputComponent->BindAction("Attack1", IE_Released, this, &ANaanFighterCharacter::StopAttack1);
-	PlayerInputComponent->BindAction("Attack2", IE_Pressed, this, &ANaanFighterCharacter::StartAttack2);
-	//PlayerInputComponent->BindAction("Attack2", IE_Released, this, &ANaanFighterCharacter::StopAttack2);
-	PlayerInputComponent->BindAction("Attack3", IE_Pressed, this, &ANaanFighterCharacter::StartAttack3);
-	//PlayerInputComponent->BindAction("Attack3", IE_Released, this, &ANaanFighterCharacter::StopAttack3);
-	PlayerInputComponent->BindAction("Attack4", IE_Pressed, this, &ANaanFighterCharacter::StartAttack4);
-	//PlayerInputComponent->BindAction("Attack4", IE_Released, this, &ANaanFighterCharacter::StopAttack4);
+			// set up gameplay key bindings
+			PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+			PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+			PlayerInputComponent->BindAxis("MoveRight", this, &ANaanFighterCharacter::MoveRight);
 
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &ANaanFighterCharacter::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &ANaanFighterCharacter::TouchStopped);
+			PlayerInputComponent->BindAction("Attack1", IE_Pressed, this, &ANaanFighterCharacter::StartAttack1);
+			//PlayerInputComponent->BindAction("Attack1", IE_Released, this, &ANaanFighterCharacter::StopAttack1);
+			PlayerInputComponent->BindAction("Attack2", IE_Pressed, this, &ANaanFighterCharacter::StartAttack2);
+			//PlayerInputComponent->BindAction("Attack2", IE_Released, this, &ANaanFighterCharacter::StopAttack2);
+			PlayerInputComponent->BindAction("Attack3", IE_Pressed, this, &ANaanFighterCharacter::StartAttack3);
+			//PlayerInputComponent->BindAction("Attack3", IE_Released, this, &ANaanFighterCharacter::StopAttack3);
+			PlayerInputComponent->BindAction("Attack4", IE_Pressed, this, &ANaanFighterCharacter::StartAttack4);
+			//PlayerInputComponent->BindAction("Attack4", IE_Released, this, &ANaanFighterCharacter::StopAttack4);
+
+			PlayerInputComponent->BindTouch(IE_Pressed, this, &ANaanFighterCharacter::TouchStarted);
+			PlayerInputComponent->BindTouch(IE_Released, this, &ANaanFighterCharacter::TouchStopped);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player 2 has bound their controls."));
+
+			// set up gameplay key bindings
+			PlayerInputComponent->BindAction("JumpP2", IE_Pressed, this, &ACharacter::Jump);
+			PlayerInputComponent->BindAction("JumpP2", IE_Released, this, &ACharacter::StopJumping);
+			PlayerInputComponent->BindAxis("MoveRightP2", this, &ANaanFighterCharacter::MoveRight);
+
+			PlayerInputComponent->BindAction("Attack1P2", IE_Pressed, this, &ANaanFighterCharacter::StartAttack1);
+			//PlayerInputComponent->BindAction("Attack1P2", IE_Released, this, &ANaanFighterCharacter::StopAttack1);
+			PlayerInputComponent->BindAction("Attack2P2", IE_Pressed, this, &ANaanFighterCharacter::StartAttack2);
+			//PlayerInputComponent->BindAction("Attack2P2", IE_Released, this, &ANaanFighterCharacter::StopAttack2);
+			PlayerInputComponent->BindAction("Attack3P2", IE_Pressed, this, &ANaanFighterCharacter::StartAttack3);
+			//PlayerInputComponent->BindAction("Attack3P2", IE_Released, this, &ANaanFighterCharacter::StopAttack3);
+			PlayerInputComponent->BindAction("Attack4P2", IE_Pressed, this, &ANaanFighterCharacter::StartAttack4);
+			//PlayerInputComponent->BindAction("Attack4P2", IE_Released, this, &ANaanFighterCharacter::StopAttack4);
+
+			PlayerInputComponent->BindTouch(IE_Pressed, this, &ANaanFighterCharacter::TouchStarted);
+			PlayerInputComponent->BindTouch(IE_Released, this, &ANaanFighterCharacter::TouchStopped);
+		}
+	}
+	
 
 }
 

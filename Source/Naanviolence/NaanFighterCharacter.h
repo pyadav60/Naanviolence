@@ -91,6 +91,10 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	EDirectionalInput directionalInput;
 
+	// can the player move right now
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool canMove;
+
 	// damage the player
 	UFUNCTION(BlueprintCallable)
 	void TakeDamage(float damageAmount);
@@ -130,6 +134,10 @@ protected:
 	// character's scale
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Model")
 	FVector scale;
+
+	// checks if we're using 2 inputs or same controller
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controller")
+	bool isDeviceForMultiplePlayers;
 
 public:
 	// Sets default values for this character's properties
