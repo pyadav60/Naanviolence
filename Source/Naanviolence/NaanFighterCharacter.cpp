@@ -58,6 +58,7 @@ ANaanFighterCharacter::ANaanFighterCharacter()
 	playerHealth = 1.00f;
 	transform = FTransform(FVector(0.0f, 0.0f, 0.0f));
 	scale = FVector(1.0f, 1.0f, 1.0f);
+	maxDistanceApart = 800.0f;
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -140,8 +141,24 @@ void ANaanFighterCharacter::MoveRight(float Value)
 	{
 		directionalInput = EDirectionalInput::VE_Default;
 	}
-	// add movement in that direction, negative world direction because of the way y axis in inverted..
-	AddMovementInput(FVector(0.f, -1.f, 0.f), Value);
+
+	float currentDistanceApart = abs(otherPlayer->GetActorLocation().Y - GetActorLocation().Y);
+
+	if (currentDistanceApart >= maxDistanceApart)
+	{
+		if ((currentDistanceApart + Value < currentDistanceApart && !isFlipped) || (currentDistanceApart - Value < currentDistanceApart && isFlipped)) 
+		{
+			// add movement in that direction, negative world direction because of the way y axis in inverted..
+			AddMovementInput(FVector(0.f, -1.f, 0.f), Value);
+		}
+	}
+	else
+	{
+		// add movement in that direction, negative world direction because of the way y axis in inverted..
+		AddMovementInput(FVector(0.f, -1.f, 0.f), Value);
+	}
+
+	
 }
 
 void ANaanFighterCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)

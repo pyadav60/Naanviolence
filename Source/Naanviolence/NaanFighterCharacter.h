@@ -120,8 +120,12 @@ protected:
 	bool hasLandedHit;
 
 	// the amount of health the character currently has
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	float playerHealth;
+
+	// the amount of health the character currently has
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float maxDistanceApart;
 
 	// is the character's model flipped?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Model")
