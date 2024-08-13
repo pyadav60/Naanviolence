@@ -7,11 +7,12 @@
 #include "NaanFighterCharacter.generated.h"
 
 UENUM(BlueprintType)
-enum class EDirectionalInput : uint8
+enum class ECharacterState : uint8
 {
 	VE_Default UMETA(DisplayName = "NOT_MOVING"),
 	VE_MovingRight UMETA(DisplayName = "MOVING_RIGHT"),
-	VE_MovingLeft UMETA(DisplayName = "MOVING_LEFT")
+	VE_MovingLeft UMETA(DisplayName = "MOVING_LEFT"),
+	VE_Jumping UMETA(DisplayName = "JUMPING")
 };
 
 UCLASS(config=Game)
@@ -79,6 +80,19 @@ protected:
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
 	// ECharacterClass characterClass;
 
+	//Override ACharacter and APawn built in jump functionality
+	virtual void Jump() override;
+	virtual void StopJumping() override;
+	virtual void Landed(const FHitResult& Hit) override;
+
+	//Make character start crouch state
+	UFUNCTION(BlueprintCallable)
+	void StartCrouching();
+
+	//Make character end crouch state
+	UFUNCTION(BlueprintCallable)
+	void StopCrouching();
+
 	// pointer to the other player
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player References")
 	ANaanFighterCharacter* otherPlayer;
@@ -89,7 +103,7 @@ protected:
 
 	// the direction the character is moving / the direction the player is holding down
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	EDirectionalInput directionalInput;
+	ECharacterState characterState;
 
 	// can the player move right now
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
@@ -142,6 +156,10 @@ protected:
 	// checks if we're using 2 inputs or same controller
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Controller")
 	bool isDeviceForMultiplePlayers;
+
+	//Is the character crouching
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool isCrouching;
 
 public:
 	// Sets default values for this character's properties

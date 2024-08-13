@@ -46,19 +46,20 @@ ANaanFighterCharacter::ANaanFighterCharacter()
 	
 	hurtbox = nullptr;
 	otherPlayer = nullptr;
-	directionalInput = EDirectionalInput::VE_Default;
+	characterState = ECharacterState::VE_Default;
 	wasFirstAttackUsed = false;
 	wasSecondAttackUsed = false;
 	wasThirdAttackUsed = false;
 	wasFourthAttackUsed = false;
 	isFlipped = false;
 	hasLandedHit = false;
-	canMove = false;
+	canMove = true;
 	isDeviceForMultiplePlayers = false;
 	playerHealth = 1.00f;
 	transform = FTransform(FVector(0.0f, 0.0f, 0.0f));
 	scale = FVector(1.0f, 1.0f, 1.0f);
 	maxDistanceApart = 800.0f;
+	isCrouching = false;
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -82,9 +83,11 @@ void ANaanFighterCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 			UE_LOG(LogTemp, Warning, TEXT("Player 1 has bound their controls."));
 
 			// set up gameplay key bindings
-			PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-			PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+			PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ANaanFighterCharacter::Jump);
+			PlayerInputComponent->BindAction("Jump", IE_Released, this, &ANaanFighterCharacter::StopJumping);
 			PlayerInputComponent->BindAxis("MoveRight", this, &ANaanFighterCharacter::MoveRight);
+			PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ANaanFighterCharacter::StartCrouching);
+			PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ANaanFighterCharacter::StopCrouching);
 
 			PlayerInputComponent->BindAction("Attack1", IE_Pressed, this, &ANaanFighterCharacter::StartAttack1);
 			//PlayerInputComponent->BindAction("Attack1", IE_Released, this, &ANaanFighterCharacter::StopAttack1);
@@ -106,6 +109,8 @@ void ANaanFighterCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 			PlayerInputComponent->BindAction("JumpP2", IE_Pressed, this, &ACharacter::Jump);
 			PlayerInputComponent->BindAction("JumpP2", IE_Released, this, &ACharacter::StopJumping);
 			PlayerInputComponent->BindAxis("MoveRightP2", this, &ANaanFighterCharacter::MoveRight);
+			PlayerInputComponent->BindAction("CrouchP2", IE_Pressed, this, &ANaanFighterCharacter::StartCrouching);
+			PlayerInputComponent->BindAction("CrouchP2", IE_Released, this, &ANaanFighterCharacter::StopCrouching);
 
 			PlayerInputComponent->BindAction("Attack1P2", IE_Pressed, this, &ANaanFighterCharacter::StartAttack1);
 			//PlayerInputComponent->BindAction("Attack1P2", IE_Released, this, &ANaanFighterCharacter::StopAttack1);
@@ -124,41 +129,71 @@ void ANaanFighterCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 }
 
+void ANaanFighterCharacter::Jump() 
+{
+	ACharacter::Jump();
+	characterState = ECharacterState::VE_Jumping;
+}
+
+void ANaanFighterCharacter::StopJumping()
+{
+	ACharacter::StopJumping();
+}
+
+void ANaanFighterCharacter::Landed(const FHitResult& Hit)
+{
+	characterState = ECharacterState::VE_Default;
+}
+
+
+void ANaanFighterCharacter::StartCrouching()
+{
+	isCrouching = true;
+}
+
+void ANaanFighterCharacter::StopCrouching()
+{
+	isCrouching = false;
+}
+
 // value is taken in by default, to be between -1 and 1 depending on the input, 1 is moving right, -1 is left
 void ANaanFighterCharacter::MoveRight(float Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("The directional input is: %f"), Value);
-
-	if (Value > 0.20f)
+	if (!isCrouching) //add can move later
 	{
-		directionalInput = EDirectionalInput::VE_MovingRight;
-	}
-	else if (Value < -0.20f)
-	{
-		directionalInput = EDirectionalInput::VE_MovingLeft;
-	}
-	else
-	{
-		directionalInput = EDirectionalInput::VE_Default;
-	}
-
-	float currentDistanceApart = abs(otherPlayer->GetActorLocation().Y - GetActorLocation().Y);
-
-	if (currentDistanceApart >= maxDistanceApart)
-	{
-		if ((currentDistanceApart + Value < currentDistanceApart && !isFlipped) || (currentDistanceApart - Value < currentDistanceApart && isFlipped)) 
+		UE_LOG(LogTemp, Warning, TEXT("The directional input is: %f"), Value);
+		if (characterState != ECharacterState::VE_Jumping)
 		{
-			// add movement in that direction, negative world direction because of the way y axis in inverted..
-			AddMovementInput(FVector(0.f, -1.f, 0.f), Value);
+			if (Value > 0.20f)
+			{
+				characterState = ECharacterState::VE_MovingRight;
+			}
+			else if (Value < -0.20f)
+			{
+				characterState = ECharacterState::VE_MovingLeft;
+			}
+			else
+			{
+				characterState = ECharacterState::VE_Default;
+			}
+
+			float currentDistanceApart = abs(otherPlayer->GetActorLocation().Y - GetActorLocation().Y);
+
+			if (currentDistanceApart >= maxDistanceApart)
+			{
+				if ((currentDistanceApart + Value < currentDistanceApart && !isFlipped) || (currentDistanceApart - Value < currentDistanceApart && isFlipped))
+				{
+					// add movement in that direction, negative world direction because of the way y axis in inverted..
+					AddMovementInput(FVector(0.f, -1.f, 0.f), Value);
+				}
+			}
+			else
+			{
+				// add movement in that direction, negative world direction because of the way y axis in inverted..
+				AddMovementInput(FVector(0.f, -1.f, 0.f), Value);
+			}
 		}
 	}
-	else
-	{
-		// add movement in that direction, negative world direction because of the way y axis in inverted..
-		AddMovementInput(FVector(0.f, -1.f, 0.f), Value);
-	}
-
-	
 }
 
 void ANaanFighterCharacter::TouchStarted(const ETouchIndex::Type FingerIndex, const FVector Location)
@@ -264,54 +299,57 @@ void ANaanFighterCharacter::Tick(float DeltaTime)
 	// call super tick function
 	Super::Tick(DeltaTime);
 
-	// if otherPlayer is not a nullptr (means it has been assigned in the blueprints and exists)
-	if (otherPlayer)
+	if (characterState != ECharacterState::VE_Jumping)
 	{
-		// NOTE: isFlipped is false when you are on the RIGHT (facing left), and true when you are on the LEFT (facing right)
-		// UE_LOG(LogTemp, Warning, TEXT("%s"), isFlipped ? TEXT("True") : TEXT("False"));
-		// try to automatically assign the CharacterMovement to our variable
-		if (auto characterMovement = GetCharacterMovement()) 
+		// if otherPlayer is not a nullptr (means it has been assigned in the blueprints and exists)
+		if (otherPlayer)
 		{
-			// try to automatically assign the otherplayer CharacterMovement to our enemy variable
-			if (auto enemyMovement = otherPlayer->GetCharacterMovement()) 
+			// NOTE: isFlipped is false when you are on the RIGHT (facing left), and true when you are on the LEFT (facing right)
+			// UE_LOG(LogTemp, Warning, TEXT("%s"), isFlipped ? TEXT("True") : TEXT("False"));
+			// try to automatically assign the CharacterMovement to our variable
+			if (auto characterMovement = GetCharacterMovement())
 			{
-				// if the enemy is to the right... (inverse Y coord is horizontal due to our camera setup, Z is vertical, X is near/far)
-				if (enemyMovement->GetActorLocation().Y >= characterMovement->GetActorLocation().Y)
+				// try to automatically assign the otherplayer CharacterMovement to our enemy variable
+				if (auto enemyMovement = otherPlayer->GetCharacterMovement())
 				{
-					// and if we are facing left...
-					if (isFlipped)
+					// if the enemy is to the right... (inverse Y coord is horizontal due to our camera setup, Z is vertical, X is near/far)
+					if (enemyMovement->GetActorLocation().Y >= characterMovement->GetActorLocation().Y)
 					{
-						// we want to change the scale of the mesh, not the fighter BP (so we don't have to deal with other math)
-						// temporarily hard coded, we get the child index 1 of CapsuleComponent of the fighter, which is the mesh
-						// better practice instead to find component by name rather than hard code
-						// better practice to make sure CapsuleComponent exists first like with the two autos above, but with those this is practically guaranteed
-						if (auto mesh = GetCapsuleComponent()->GetChildComponent(1))
+						// and if we are facing left...
+						if (isFlipped)
 						{
-							transform = mesh->GetRelativeTransform(); // gets transform box with location, rotation, scale and sets our temporary transform variable
-							scale = transform.GetScale3D(); // gets the scale part
-							scale.Y = -1;// mirror the mesh, flip to the right (characters face right by default, but note the inverted Y axis)
-							transform.SetScale3D(scale); // update our transform variable with the new scale
-							mesh->SetRelativeTransform(transform); // update the mesh's transform with the temporary transform variable
+							// we want to change the scale of the mesh, not the fighter BP (so we don't have to deal with other math)
+							// temporarily hard coded, we get the child index 1 of CapsuleComponent of the fighter, which is the mesh
+							// better practice instead to find component by name rather than hard code
+							// better practice to make sure CapsuleComponent exists first like with the two autos above, but with those this is practically guaranteed
+							if (auto mesh = GetCapsuleComponent()->GetChildComponent(1))
+							{
+								transform = mesh->GetRelativeTransform(); // gets transform box with location, rotation, scale and sets our temporary transform variable
+								scale = transform.GetScale3D(); // gets the scale part
+								scale.Y = -1;// mirror the mesh, flip to the right (characters face right by default, but note the inverted Y axis)
+								transform.SetScale3D(scale); // update our transform variable with the new scale
+								mesh->SetRelativeTransform(transform); // update the mesh's transform with the temporary transform variable
+							}
+							isFlipped = false;
 						}
-						isFlipped = false;
 					}
-				}
-				// if the enemy is to the left...
-				else
-				{
-					// ... and if we are facing right
-					if (!isFlipped)
+					// if the enemy is to the left...
+					else
 					{
-						// same comments as block above
-						if (auto mesh = GetCapsuleComponent()->GetChildComponent(1))
+						// ... and if we are facing right
+						if (!isFlipped)
 						{
-							transform = mesh->GetRelativeTransform(); // gets transform box with location, rotation, scale and sets our temporary transform variable
-							scale = transform.GetScale3D(); // gets the scale part
-							scale.Y = 1; // mirror the mesh, flip to the left (characters face right by default, but note the inverted Y axis)
-							transform.SetScale3D(scale); // update our transform variable with the new scale
-							mesh->SetRelativeTransform(transform); // update the mesh's transform with the temporary transform variable
+							// same comments as block above
+							if (auto mesh = GetCapsuleComponent()->GetChildComponent(1))
+							{
+								transform = mesh->GetRelativeTransform(); // gets transform box with location, rotation, scale and sets our temporary transform variable
+								scale = transform.GetScale3D(); // gets the scale part
+								scale.Y = 1; // mirror the mesh, flip to the left (characters face right by default, but note the inverted Y axis)
+								transform.SetScale3D(scale); // update our transform variable with the new scale
+								mesh->SetRelativeTransform(transform); // update the mesh's transform with the temporary transform variable
+							}
+							isFlipped = true;
 						}
-						isFlipped = true;
 					}
 				}
 			}
