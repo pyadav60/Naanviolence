@@ -11,8 +11,13 @@ enum class ECharacterState : uint8
 {
 	VE_Default UMETA(DisplayName = "NOT_MOVING"),
 	VE_MovingRight UMETA(DisplayName = "MOVING_RIGHT"),
+	VE_RunningRight UMETA(DisplayName = "RUNNING_RIGHT"),
 	VE_MovingLeft UMETA(DisplayName = "MOVING_LEFT"),
-	VE_Jumping UMETA(DisplayName = "JUMPING")
+	VE_RunningLeft UMETA(DisplayName = "RUNNING_LEFT"),
+	VE_Jumping UMETA(DisplayName = "JUMPING"),
+	VE_Stunned UMETA(DisplayName = "STUNNED"),
+	VE_Blocking UMETA(DisplayName = "BLOCKING"),
+	VE_Crouching UMETA(DisplayName = "CROUCHING")
 };
 
 UCLASS(config=Game)
@@ -109,10 +114,32 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	bool canMove;
 
+	// can the player move right now
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool canAct;
+
+	//Determines the result of a player collision with any kind of proximity hitbox
+	UFUNCTION(BlueprintCallable)
+	void CollideWithProximityHitbox();
+
 	// damage the player
 	UFUNCTION(BlueprintCallable)
-	void TakeDamage(float damageAmount);
+	void TakeDamage(float damageAmount, float hitstunTime, float blockstunTime);
 	
+	//Cause the player to enter the stunned state
+	void BeginStun();
+
+	//Cause the player to leave the stunned state
+	void EndStun();
+
+	//Player Enters the blocking state
+	UFUNCTION(BlueprintCallable)
+	void StartBlocking();
+	
+	//Player Exits the Blocking State
+	UFUNCTION(BlueprintCallable)
+	void StopBlocking();
+
 	// has the player used light attack?
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
 	bool wasFirstAttackUsed;
@@ -160,6 +187,13 @@ protected:
 	//Is the character crouching
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	bool isCrouching;
+
+	//Amount of time the player character is disabled by hitstun, blockstun etc
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float stunTime;
+
+	//Timer handle for managing stun duration
+	FTimerHandle stunTimerHandle;
 
 public:
 	// Sets default values for this character's properties

@@ -8,6 +8,9 @@ AHitboxActor::AHitboxActor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	hitboxDamage = 0.0f; 
+	hitboxHitstun = 0.0f;
+	hitboxBlockstun = 0.0f;
 
 }
 

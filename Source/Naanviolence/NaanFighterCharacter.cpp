@@ -54,12 +54,14 @@ ANaanFighterCharacter::ANaanFighterCharacter()
 	isFlipped = false;
 	hasLandedHit = false;
 	canMove = true;
+	canAct = true;
 	isDeviceForMultiplePlayers = false;
 	playerHealth = 1.00f;
 	transform = FTransform(FVector(0.0f, 0.0f, 0.0f));
 	scale = FVector(1.0f, 1.0f, 1.0f);
 	maxDistanceApart = 800.0f;
 	isCrouching = false;
+	stunTime = 0.0f;
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -88,6 +90,8 @@ void ANaanFighterCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 			PlayerInputComponent->BindAxis("MoveRight", this, &ANaanFighterCharacter::MoveRight);
 			PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ANaanFighterCharacter::StartCrouching);
 			PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ANaanFighterCharacter::StopCrouching);
+			PlayerInputComponent->BindAction("Block", IE_Pressed, this, &ANaanFighterCharacter::StartBlocking);
+			PlayerInputComponent->BindAction("Block", IE_Released, this, &ANaanFighterCharacter::StopBlocking);
 
 			PlayerInputComponent->BindAction("Attack1", IE_Pressed, this, &ANaanFighterCharacter::StartAttack1);
 			//PlayerInputComponent->BindAction("Attack1", IE_Released, this, &ANaanFighterCharacter::StopAttack1);
@@ -111,6 +115,8 @@ void ANaanFighterCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 			PlayerInputComponent->BindAxis("MoveRightP2", this, &ANaanFighterCharacter::MoveRight);
 			PlayerInputComponent->BindAction("CrouchP2", IE_Pressed, this, &ANaanFighterCharacter::StartCrouching);
 			PlayerInputComponent->BindAction("CrouchP2", IE_Released, this, &ANaanFighterCharacter::StopCrouching);
+			PlayerInputComponent->BindAction("BlockP2", IE_Pressed, this, &ANaanFighterCharacter::StartBlocking);
+			PlayerInputComponent->BindAction("BlockP2", IE_Released, this, &ANaanFighterCharacter::StopBlocking);
 
 			PlayerInputComponent->BindAction("Attack1P2", IE_Pressed, this, &ANaanFighterCharacter::StartAttack1);
 			//PlayerInputComponent->BindAction("Attack1P2", IE_Released, this, &ANaanFighterCharacter::StopAttack1);
@@ -148,20 +154,31 @@ void ANaanFighterCharacter::Landed(const FHitResult& Hit)
 
 void ANaanFighterCharacter::StartCrouching()
 {
-	isCrouching = true;
+	characterState = ECharacterState::VE_Crouching;
 }
 
 void ANaanFighterCharacter::StopCrouching()
 {
-	isCrouching = false;
+	characterState = ECharacterState::VE_Default;
+}
+
+void ANaanFighterCharacter::StartBlocking()
+{
+	characterState = ECharacterState::VE_Blocking;
+}
+
+void ANaanFighterCharacter::StopBlocking()
+{
+	characterState = ECharacterState::VE_Default;
 }
 
 // value is taken in by default, to be between -1 and 1 depending on the input, 1 is moving right, -1 is left
 void ANaanFighterCharacter::MoveRight(float Value)
 {
-	if (!isCrouching) //add can move later
+	UE_LOG(LogTemp, Warning, TEXT("canAct is: %s"), canAct ? TEXT("true") : TEXT("false"));
+	if (canAct && characterState != ECharacterState::VE_Crouching && characterState != ECharacterState::VE_Blocking) //add can move later
 	{
-		UE_LOG(LogTemp, Warning, TEXT("The directional input is: %f"), Value);
+		//UE_LOG(LogTemp, Warning, TEXT("The directional input is: %f"), Value);
 		if (characterState != ECharacterState::VE_Jumping)
 		{
 			if (Value > 0.20f)
@@ -268,21 +285,67 @@ void ANaanFighterCharacter::P2KeyboardMoveRight(float Value)
 	MoveRight(Value);
 }
 
-void ANaanFighterCharacter::TakeDamage(float damageAmount)
+
+void ANaanFighterCharacter::CollideWithProximityHitbox()
 {
-	UE_LOG(LogTemp, Warning, TEXT("taking %f damage"), damageAmount);
-	UE_LOG(LogTemp, Warning, TEXT("remaining %f"), playerHealth);
-	playerHealth -= damageAmount;
-	
-	if (otherPlayer)
+	if ((characterState == ECharacterState::VE_MovingLeft && isFlipped) || (characterState == ECharacterState::VE_MovingRight && !isFlipped))
 	{
-		otherPlayer->hasLandedHit = true;
+		characterState = ECharacterState::VE_Blocking;
+	}
+}
+
+void ANaanFighterCharacter::TakeDamage(float damageAmount, float hitstunTime, float blockstunTime)
+{
+	if (characterState != ECharacterState::VE_Blocking) {
+		UE_LOG(LogTemp, Warning, TEXT("taking %f damage"), damageAmount);
+		UE_LOG(LogTemp, Warning, TEXT("remaining %f"), playerHealth);
+		playerHealth -= damageAmount;
+
+		stunTime = hitstunTime;
+		if (stunTime > 0.0f)
+		{
+			characterState = ECharacterState::VE_Stunned;
+			BeginStun();
+		}
+
+		if (otherPlayer)
+		{
+			otherPlayer->hasLandedHit = true;
+		}
+	}
+	else 
+	{
+		float reducedDamage = damageAmount * .2f;
+		playerHealth -= reducedDamage;
+
+		stunTime = blockstunTime;
+		if (stunTime > 0.0f)
+		{
+			BeginStun();
+		}
+		else 
+		{
+			characterState = ECharacterState::VE_Default;
+		}
+
 	}
 
 	if (playerHealth < 0.00f)
 	{
 		playerHealth = 0.00f;
 	}
+}
+
+void ANaanFighterCharacter::BeginStun()
+{
+	canAct = false;
+	GetWorld()->GetTimerManager().SetTimer(stunTimerHandle, this, &ANaanFighterCharacter::EndStun, stunTime, false);
+}
+
+void ANaanFighterCharacter::EndStun()
+{
+	characterState = ECharacterState::VE_Default;
+	canAct = true;
 }
 
 //// Called when the game starts or when spawned

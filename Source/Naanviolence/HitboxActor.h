@@ -39,6 +39,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hitbox")
 	float hitboxDamage;
 
+	//duration of stun applied by hitbox on hit
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hitbox")
+	float hitboxHitstun;
+
+	//duration of stun applied by hitbox on block
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hitbox")
+	float hitboxBlockstun;
+
 	// the hitbox enum instance
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hitbox")
 	EHitboxEnum hitboxType;
@@ -46,6 +54,8 @@ public:
 	// the location to spawn hitbox
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Hitbox")
 	FVector hitboxLocation;
+
+
 
 protected:
 	// Called when the game starts or when spawned
