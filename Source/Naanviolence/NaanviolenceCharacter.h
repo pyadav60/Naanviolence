@@ -1,5 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
+// JASON NOTE: this h file is the default player and has been put aside for the new class, NaanFighterCharacter
+
 #pragma once
 
 #include "CoreMinimal.h"
